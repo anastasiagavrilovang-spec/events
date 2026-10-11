@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sustainability Collective Events</title>
+<style>
+  :root {
+    --bg: #f5f6f1;
+    --surface: #ffffff;
+    --ink: #1c2a22;
+    --muted: #5a6a5f;
+    --line: #dde3d8;
+    --accent: #1f6b4a;
+    --accent-ink: #ffffff;
+    --tint: #e6f0e9;
+    --tint-ink: #1f5a40;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #111713;
+      --surface: #1a221d;
+      --ink: #e7eee8;
+      --muted: #9aad9f;
+      --line: #2a352e;
+      --accent: #6fcf9c;
+      --accent-ink: #0c1a12;
+      --tint: #22332a;
+      --tint-ink: #a9e3c3;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  a { color: var(--accent); }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+
+  header { padding: 40px 0 24px; }
+  .head-row { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-end; justify-content: space-between; }
+  .eyebrow { margin: 0 0 4px; font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+  h1 { margin: 0; font-size: clamp(28px, 5vw, 40px); line-height: 1.15; letter-spacing: -.01em; }
+  .add { text-align: right; }
+  .add-note { margin: 6px 0 0; font-size: 13px; color: var(--muted); }
+
+  .btn {
+    display: inline-block;
+    padding: 10px 18px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .btn:hover { filter: brightness(1.08); }
+  .btn.small { padding: 7px 14px; font-size: 14px; }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding-bottom: 20px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; flex: 1 1 320px; }
+  .chip {
+    padding: 6px 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--ink);
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+  #search {
+    flex: 1 1 220px;
+    max-width: 320px;
+    padding: 8px 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--ink);
+    font: inherit;
+    font-size: 15px;
+  }
+  .chip:focus-visible, #search:focus-visible, .btn:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  h2 { margin: 8px 0 14px; font-size: 20px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+  @media (max-width: 400px) { .grid { grid-template-columns: 1fr; } }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 18px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--surface);
+    min-width: 0;
+  }
+  .card-top { display: flex; gap: 14px; align-items: flex-start; }
+  .date-tile {
+    flex: none;
+    width: 56px;
+    padding: 6px 0;
+    border-radius: 10px;
+    background: var(--tint);
+    color: var(--tint-ink);
+    text-align: center;
+    line-height: 1.1;
+  }
+  .date-tile .mon { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+  .date-tile .day { font-size: 24px; font-weight: 700; }
+  .card-head { flex: 1; min-width: 0; }
+  .card h3 { margin: 0 0 6px; font-size: 18px; line-height: 1.3; overflow-wrap: anywhere; }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; background: var(--tint); color: var(--tint-ink); font-size: 12px; font-weight: 600; }
+  .logo {
+    flex: none;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: #fff;
+    object-fit: contain;
+  }
+  .logo.initial {
+    display: grid;
+    place-items: center;
+    border: 0;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .meta { margin: 0; padding: 0; list-style: none; font-size: 14px; color: var(--muted); }
+  .meta li { display: flex; gap: 8px; overflow-wrap: anywhere; }
+  .meta .label { flex: none; width: 76px; font-weight: 600; color: var(--ink); }
+  .desc { margin: 0; font-size: 15px; white-space: pre-line; overflow-wrap: anywhere; }
+  .card:not(.expanded) .desc { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 5; line-clamp: 5; overflow: hidden; }
+  .more { align-self: flex-start; margin-top: -6px; padding: 0; border: 0; background: none; color: var(--accent); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .more:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .card .btn { align-self: flex-start; margin-top: auto; }
+
+  details { margin-top: 36px; }
+  summary { cursor: pointer; font-size: 18px; font-weight: 700; padding: 6px 0; }
+  details .grid { margin-top: 14px; }
+  details .card { opacity: .85; }
+
+  .message { padding: 40px 16px; border: 1px dashed var(--line); border-radius: 14px; text-align: center; color: var(--muted); }
+  .message p { margin: 0 0 14px; }
+  footer { padding: 40px 0; font-size: 13px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="head-row">
+      <div>
+        <p class="eyebrow">Sustainability Collective</p>
+        <h1>Events</h1>
+      </div>
+      <div class="add">
+        <a class="btn" id="add-btn" href="#">+ Add an event</a>
+        <p class="add-note">New events appear here within about 5 minutes</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="controls" id="controls" hidden>
+    <div class="chips" id="chips" role="group" aria-label="Filter by category"></div>
+    <input id="search" type="search" placeholder="Search events" aria-label="Search events">
+  </div>
+
+  <main>
+    <section id="upcoming-section">
+      <h2>Upcoming events</h2>
+      <div id="upcoming" class="grid"><p>Loading events…</p></div>
+    </section>
+    <details id="past-section" hidden>
+      <summary id="past-summary">Past events</summary>
+      <div id="past" class="grid"></div>
+    </details>
+  </main>
+
+  <footer>Events are added by Sustainability Collective members and are open to all members.</footer>
+</div>
+
+<script>
+// ===== Settings: the only two lines to change =====
+// Link to the published Google Sheet (File > Share > Publish to web > CSV)
+const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSKxC5qdH1KtE-ZOO39CgxHJr1l_Zw3QssjJDvx23zSvVc4QrNWXbAEX3cnHVrD7jOMa2-65zvzu-Gb/pub?gid=1083690748&single=true&output=csv";
+// Link to the Google Form for adding an event
+const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdw4YxfzSQ6Aw1m8rVNulC05jaQBhLiAmJ-sh5O-qZ1EBzT9w/viewform";
+// How the sheet writes dates like 02/11/2026: "DMY" = day first, "MDY" = month first
+const DATE_ORDER = "DMY";
+// ==================================================
+
+// Which sheet column feeds each field, matched on the column's header text
+const COLUMNS = {
+  title: ["event title", "title"],
+  date: ["date"],
+  start: ["start time", "start"],
+  end: ["end time", "end"],
+  location: ["location"],
+  category: ["category"],
+  organiser: ["organiser name", "organizer name", "organiser", "organizer"],
+  email: ["organiser contact", "organizer contact", "contact", "email"],
+  description: ["short description", "description"],
+  register: ["registration"],
+  logo: ["logo"],
+  hidden: ["hidden"],
+};
+
+let events = [];
+let activeCategory = "All";
+let searchTerm = "";
+
+function parseCSV(text) {
+  const rows = [];
+  let row = [], cell = "", quoted = false;
+  text = text.replace(/^﻿/, "");
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (quoted) {
+      if (c === '"' && text[i + 1] === '"') { cell += '"'; i++; }
+      else if (c === '"') quoted = false;
+      else cell += c;
+    } else if (c === '"') quoted = true;
+    else if (c === ",") { row.push(cell); cell = ""; }
+    else if (c === "\n" || c === "\r") {
+      if (c === "\r" && text[i + 1] === "\n") i++;
+      row.push(cell); rows.push(row); row = []; cell = "";
+    } else cell += c;
+  }
+  if (cell !== "" || row.length) { row.push(cell); rows.push(row); }
+  return rows;
+}
+
+function findColumn(headers, candidates) {
+  const tests = [
+    (h, c) => h === c,
+    (h, c) => h.startsWith(c),
+    (h, c) => h.includes(c),
+  ];
+  for (const test of tests) {
+    for (const c of candidates) {
+      const i = headers.findIndex(h => test(h, c));
+      if (i !== -1) return i;
+    }
+  }
+  return -1;
+}
+
+// Returns "yyyy-mm-dd", or "" if the text is not a readable date
+function parseDate(text) {
+  const iso = text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  const numeric = text.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})$/);
+  let y, m, d;
+  if (iso) [y, m, d] = [+iso[1], +iso[2], +iso[3]];
+  else if (numeric) {
+    [d, m, y] = [+numeric[1], +numeric[2], +numeric[3]];
+    if (DATE_ORDER === "MDY") [d, m] = [m, d];
+  } else if (/[a-z]/i.test(text) && /\d{4}/.test(text)) {
+    // Written-out months such as "5 Nov 2026" are unambiguous
+    const parsed = new Date(text);
+    if (isNaN(parsed)) return "";
+    [y, m, d] = [parsed.getFullYear(), parsed.getMonth() + 1, parsed.getDate()];
+  } else return "";
+  const check = new Date(y, m - 1, d);
+  if (check.getFullYear() !== y || check.getMonth() !== m - 1 || check.getDate() !== d) return "";
+  return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+}
+
+// Returns "HH:mm", or the original text if it is not a readable time
+function parseTime(text) {
+  const t = text.match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*(am|pm)?$/i);
+  if (!t) return text;
+  let h = +t[1];
+  if (t[3]) h = (h % 12) + (t[3].toLowerCase() === "pm" ? 12 : 0);
+  return `${String(h).padStart(2, "0")}:${t[2]}`;
+}
+
+function safeUrl(text) {
+  try {
+    const url = new URL(text);
+    return url.protocol === "http:" || url.protocol === "https:" ? url.href : "";
+  } catch { return ""; }
+}
+
+function toEvents(rows) {
+  if (!rows.length) return [];
+  const headers = rows[0].map(h => h.trim().toLowerCase());
+  const col = {};
+  for (const key in COLUMNS) col[key] = findColumn(headers, COLUMNS[key]);
+  const get = (row, key) => (col[key] === -1 ? "" : (row[col[key]] || "").trim());
+
+  const list = [];
+  for (const row of rows.slice(1)) {
+    const title = get(row, "title");
+    const rawDate = get(row, "date");
+    if (!title || !rawDate || get(row, "hidden")) continue;
+    const e = {
+      title,
+      rawDate,
+      date: parseDate(rawDate),
+      start: parseTime(get(row, "start")),
+      end: parseTime(get(row, "end")),
+      location: get(row, "location"),
+      category: get(row, "category") || "Other",
+      organiser: get(row, "organiser"),
+      email: get(row, "email"),
+      description: get(row, "description"),
+      register: safeUrl(get(row, "register")),
+      logo: safeUrl(get(row, "logo")),
+    };
+    e.searchText = [e.title, e.description, e.organiser, e.location].join(" ").toLowerCase();
+    list.push(e);
+  }
+  return list;
+}
+
+function el(tag, className, text) {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (text !== undefined) node.textContent = text;
+  return node;
+}
+
+function link(href, text) {
+  const a = el("a", "", text);
+  a.href = href;
+  if (!href.startsWith("mailto:")) { a.target = "_blank"; a.rel = "noopener noreferrer"; }
+  return a;
+}
+
+function metaRow(label, content) {
+  const li = el("li");
+  li.append(el("span", "label", label));
+  const value = el("span");
+  value.append(content);
+  li.append(value);
+  return li;
+}
+
+function initialBadge(e) {
+  const name = e.organiser || e.title;
+  return el("div", "logo initial", name.charAt(0).toUpperCase());
+}
+
+function renderCard(e) {
+  const card = el("article", "card");
+  const top = el("div", "card-top");
+
+  const tile = el("div", "date-tile");
+  if (e.date) {
+    const [y, m, d] = e.date.split("-").map(Number);
+    const date = new Date(y, m - 1, d);
+    tile.append(el("div", "mon", date.toLocaleDateString("en-GB", { month: "short" })), el("div", "day", String(d)));
+  } else {
+    tile.append(el("div", "mon", "Date"), el("div", "day", "?"));
+  }
+
+  const head = el("div", "card-head");
+  head.append(el("h3", "", e.title), el("span", "badge", e.category));
+
+  let logo;
+  if (e.logo) {
+    logo = el("img", "logo");
+    logo.src = e.logo;
+    logo.alt = "";
+    logo.loading = "lazy";
+    logo.referrerPolicy = "no-referrer";
+    logo.onerror = () => logo.replaceWith(initialBadge(e));
+  } else {
+    logo = initialBadge(e);
+  }
+  top.append(tile, head, logo);
+  card.append(top);
+
+  const meta = el("ul", "meta");
+  let when = e.rawDate;
+  if (e.date) {
+    const [y, m, d] = e.date.split("-").map(Number);
+    when = new Date(y, m - 1, d).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+  }
+  if (e.start) when += ` · ${e.start}${e.end ? "–" + e.end : ""}`;
+  meta.append(metaRow("When", when));
+  if (e.location) {
+    const url = /^https?:\/\//i.test(e.location) ? safeUrl(e.location) : "";
+    meta.append(metaRow("Where", url ? link(url, "Online (open link)") : e.location));
+  }
+  if (e.organiser) {
+    const who = el("span", "", e.organiser);
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.email)) {
+      who.append(" · ", link("mailto:" + e.email, e.email));
+    }
+    meta.append(metaRow("Organiser", who));
+  }
+  card.append(meta);
+
+  if (e.description) {
+    const more = el("button", "more", "Show more");
+    more.type = "button";
+    more.hidden = true;
+    more.onclick = () => {
+      const open = card.classList.toggle("expanded");
+      more.textContent = open ? "Show less" : "Show more";
+    };
+    card.append(el("p", "desc", e.description), more);
+  }
+  if (e.register) {
+    const btn = link(e.register, "Register");
+    btn.className = "btn small";
+    card.append(btn);
+  }
+  return card;
+}
+
+function addButton() {
+  const a = el("a", "btn", "+ Add an event");
+  a.href = safeUrl(FORM_URL) || "#";
+  if (a.getAttribute("href") !== "#") { a.target = "_blank"; a.rel = "noopener noreferrer"; }
+  return a;
+}
+
+function message(text, withButton) {
+  const box = el("div", "message");
+  box.style.gridColumn = "1 / -1";
+  box.append(el("p", "", text));
+  if (withButton) box.append(addButton());
+  return box;
+}
+
+function todayString() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+}
+
+function render() {
+  const today = todayString();
+  const filtering = activeCategory !== "All" || searchTerm !== "";
+  const shown = events.filter(e =>
+    (activeCategory === "All" || e.category === activeCategory) &&
+    (!searchTerm || e.searchText.includes(searchTerm)));
+
+  // Events with an unreadable date count as upcoming and go last
+  const byTime = (a, b) => (a.date + a.start).localeCompare(b.date + b.start);
+  const upcoming = shown.filter(e => e.date && e.date >= today).sort(byTime)
+    .concat(shown.filter(e => !e.date));
+  const past = shown.filter(e => e.date && e.date < today).sort(byTime).reverse();
+
+  const upcomingBox = document.getElementById("upcoming");
+  upcomingBox.replaceChildren(...upcoming.map(renderCard));
+  if (!upcoming.length) {
+    upcomingBox.append(filtering
+      ? message(past.length ? "No upcoming events match. See past events below." : "No events match.", false)
+      : message("No upcoming events yet.", true));
+  }
+
+  const pastSection = document.getElementById("past-section");
+  pastSection.hidden = past.length === 0;
+  document.getElementById("past-summary").textContent = `Past events (${past.length})`;
+  document.getElementById("past").replaceChildren(...past.map(renderCard));
+  fitDescriptions();
+}
+
+// Show the "Show more" button only on cards whose description is cut off
+function fitDescriptions() {
+  for (const card of document.querySelectorAll(".card:not(.expanded)")) {
+    const desc = card.querySelector(".desc");
+    const more = card.querySelector(".more");
+    if (desc && more && desc.clientHeight) more.hidden = desc.scrollHeight <= desc.clientHeight + 1;
+  }
+}
+
+function renderChips() {
+  const categories = [...new Set(events.map(e => e.category))]
+    .sort((a, b) => (a === "Other") - (b === "Other") || a.localeCompare(b));
+  const chips = document.getElementById("chips");
+  chips.replaceChildren(...["All", ...categories].map(name => {
+    const chip = el("button", "chip", name);
+    chip.type = "button";
+    chip.setAttribute("aria-pressed", String(name === activeCategory));
+    chip.onclick = () => { activeCategory = name; renderChips(); render(); };
+    return chip;
+  }));
+}
+
+async function load() {
+  const formUrl = safeUrl(FORM_URL);
+  if (formUrl) {
+    const btn = document.getElementById("add-btn");
+    btn.href = formUrl;
+    btn.target = "_blank";
+    btn.rel = "noopener noreferrer";
+  }
+  try {
+    const response = await fetch(SHEET_CSV_URL, { cache: "no-store" });
+    if (!response.ok) throw new Error(response.status);
+    events = toEvents(parseCSV(await response.text()));
+  } catch (err) {
+    console.error("Could not load events", err);
+    document.getElementById("upcoming").replaceChildren(message("Couldn't load events, please refresh.", false));
+    document.getElementById("past-section").hidden = true;
+    document.getElementById("controls").hidden = true;
+    return;
+  }
+  document.getElementById("controls").hidden = events.length === 0;
+  renderChips();
+  render();
+}
+
+document.getElementById("search").addEventListener("input", e => {
+  searchTerm = e.target.value.trim().toLowerCase();
+  render();
+});
+document.getElementById("past-section").addEventListener("toggle", fitDescriptions);
+window.addEventListener("resize", fitDescriptions);
+
+load();
+</script>
+</body>
+</html>
